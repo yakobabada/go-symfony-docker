@@ -18,11 +18,6 @@ type Query struct {
 var validate *validator.Validate
 
 func getCoupons(c *gin.Context)  {
-  req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
-
-  if err != nil {
-    displayError(c)
-  }
   var queryStruct Query
 
   if err := c.ShouldBindWith(&queryStruct, binding.Query); err != nil {
@@ -33,6 +28,12 @@ func getCoupons(c *gin.Context)  {
   if err := validate.Struct(queryStruct); err != nil {
     c.JSON(http.StatusBadRequest, gin.H{"error": "Data provided is incomplete or wrong"})
     return
+  }
+
+  req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
+
+  if err != nil {
+    displayError(c)
   }
 
   v, _ := query.Values(queryStruct)
