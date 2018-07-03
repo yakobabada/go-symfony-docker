@@ -18,16 +18,16 @@ type Query struct {
 var validate *validator.Validate
 
 func getCoupons(c *gin.Context)  {
-	req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
+  req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
 
   if err != nil {
-			displayError(c)
+    displayError(c)
   }
   var queryStruct Query
 
   if err := c.ShouldBindWith(&queryStruct, binding.Query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
+    c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+  }
 
   validate = validator.New()
   if err := validate.Struct(queryStruct); err != nil {
@@ -36,27 +36,27 @@ func getCoupons(c *gin.Context)  {
   }
 
   v, _ := query.Values(queryStruct)
-	req.URL.RawQuery = v.Encode()
-	client := &http.Client{}
-	response, err := client.Do(req)
+  req.URL.RawQuery = v.Encode()
+  client := &http.Client{}
+  response, err := client.Do(req)
 
-	if err != nil {
-		displayError(c)
-	}
+  if err != nil {
+  	displayError(c)
+  }
 
-	data, _ := ioutil.ReadAll(response.Body)
-	c.Data(http.StatusOK, "application/json", data)
+  data, _ := ioutil.ReadAll(response.Body)
+  c.Data(http.StatusOK, "application/json", data)
 }
 
 func displayError(c *gin.Context)  {
-	c.JSON(http.StatusInternalServerError, gin.H{
-		"message": "Internal server error",
-	})
-	return
+  c.JSON(http.StatusInternalServerError, gin.H{
+    "message": "Internal server error",
+  })
+  return
 }
 
 func main() {
-	router := gin.Default()
-	router.GET("/coupons", getCoupons)
-	router.Run(":8080")
+  router := gin.Default()
+  router.GET("/coupons", getCoupons)
+  router.Run(":8080")
 }
