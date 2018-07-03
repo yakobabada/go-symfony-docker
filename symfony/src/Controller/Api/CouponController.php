@@ -2,7 +2,7 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\WebUrl;
+use App\Entity\Coupon;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,11 +19,23 @@ class CouponController extends ApiController
      */
     public function listAction(Request $request)
     {
-        // $urls = $this->getDoctrine()->getRepository(WebUrl::class)->findAll();
+        $query = [];
 
-        return $this->createApiResponse([
-            ['brand' => 'Tesco', 'value' => $request->query->get('limit')],
-            ['brand' => 'Sainsbury\'s', 'value' => 5],
-          ]);
+        if ($request->query->get('brand')) {
+          $query['brand'] = $request->query->get('brand');
+        }
+
+        if ($request->query->get('value')) {
+          $query['value'] = $request->query->get('value');
+        }
+
+        $limit = $request->query->get('limit')?:10;
+
+        $coupons = $this->getDoctrine()->getRepository(Coupon::class)->findBy($query, null, $limit);
+
+        // foreach ($coupons as $coupon) {
+        // }
+
+        return $this->createApiResponse($coupons);
     }
 }
