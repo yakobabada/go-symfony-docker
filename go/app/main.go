@@ -4,8 +4,18 @@ import (
     "github.com/gin-gonic/gin"
     "net/http"
 		"io/ioutil"
-		"os"
+    "github.com/gin-gonic/gin/binding"
+    "gopkg.in/go-playground/validator.v9"
+    "github.com/google/go-querystring/query"
 )
+
+type Query struct {
+  Brand string `url:"brand" form:"brand"`
+  Value int    `url:"value" form:"value" validate:"gte=0,lte=100"`
+  Limit int    `url:"limit" form:"limit" validate:"gte=0,lte=100"`
+}
+
+var validate *validator.Validate
 
 func getCoupons(c *gin.Context)  {
 	req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
@@ -13,19 +23,20 @@ func getCoupons(c *gin.Context)  {
   if err != nil {
 			displayError(c)
   }
+  var queryStruct Query
 
-	query := req.URL.Query()
-
-	if brand := c.Query("brand"); brand != "" {
-		query.Add("brand", brand)
+  if err := c.ShouldBindWith(&queryStruct, binding.Query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	if value := c.Query("value"); value != "" {
-		query.Add("value", value)
-	}
+  validate = validator.New()
+  if err := validate.Struct(queryStruct); err != nil {
+    c.JSON(http.StatusBadRequest, gin.H{"error": "Data provided is incomplete or wrong"})
+    return
+  }
 
-	query.Add("limit", c.DefaultQuery("limit", "3"))
-	req.URL.RawQuery = query.Encode()
+  v, _ := query.Values(queryStruct)
+	req.URL.RawQuery = v.Encode()
 	client := &http.Client{}
 	response, err := client.Do(req)
 
@@ -41,7 +52,7 @@ func displayError(c *gin.Context)  {
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"message": "Internal server error",
 	})
-	os.Exit(1)
+	return
 }
 
 func main() {
