@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Annotation\SecureToken;
 use App\Entity\Coupon;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -16,6 +17,7 @@ class CouponController extends ApiController
     /**
      * @Route("")
      * @Method("GET")
+     * @SecureToken
      */
     public function listAction(Request $request)
     {

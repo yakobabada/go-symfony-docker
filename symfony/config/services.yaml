@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
+    apiKeys:
+        - 'adfhg@##$dfadas2312312789FSDADF342'
 
 services:
     # default configuration for services in *this* file
@@ -29,3 +31,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    App\EventListener\SecureTokenAnnotationListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller }
+
+    # It's a hacky way
+    Doctrine\Common\Annotations\AnnotationReader:
+        class: Doctrine\Common\Annotations\AnnotationReader
+    App\Service\TokenService:
+        class: App\Service\TokenService
+        arguments: ['%apiKeys%']
