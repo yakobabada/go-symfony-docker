@@ -29,8 +29,8 @@ PHP container requests GO container copoun data to display it.
     composer install
 
 * open the `.env` file to update mysql params
-    vi .env
-    
+    `vi .env`
+
     `DATABASE_URL=mysql://db_user:db_password@127.0.0.1:3306/db_name` -> `DATABASE_URL=mysql://app:password@mysql/symfony`
 
 * Run migrations
