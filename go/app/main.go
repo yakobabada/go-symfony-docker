@@ -19,19 +19,39 @@ type Query struct {
 
 var validate *validator.Validate
 
+func main() {
+  router := gin.Default()
+  router.GET("/coupons", getCoupons)
+  router.Run(":8080")
+}
+
 func getCoupons(c *gin.Context)  {
   var queryStruct Query
 
-  if err := c.ShouldBindWith(&queryStruct, binding.Query); err != nil {
-    c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-  }
+  prepareData(c, &queryStruct)
+  validateData(c, &queryStruct)
+  response := createRequest(c, &queryStruct)
 
+  data, _ := ioutil.ReadAll(response.Body)
+  c.Data(http.StatusOK, "application/json", data)
+}
+
+func prepareData(c *gin.Context, queryStruct *Query)  {
+  if err := c.ShouldBindWith(queryStruct, binding.Query); err != nil {
+    c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    return
+  }
+}
+
+func validateData(c *gin.Context, queryStruct *Query)  {
   validate = validator.New()
   if err := validate.Struct(queryStruct); err != nil {
     c.JSON(http.StatusBadRequest, gin.H{"error": "Data provided is incomplete or wrong"})
     return
   }
+}
 
+func createRequest(c *gin.Context, queryStruct *Query) (*http.Response) {
   req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
   req.Header.Set("x-api-key", ApiKey)
 
@@ -45,22 +65,16 @@ func getCoupons(c *gin.Context)  {
   response, err := client.Do(req)
 
   if err != nil {
-  	displayError(c)
+    displayError(c)
   }
 
-  data, _ := ioutil.ReadAll(response.Body)
-  c.Data(http.StatusOK, "application/json", data)
+  return response
 }
 
 func displayError(c *gin.Context)  {
   c.JSON(http.StatusInternalServerError, gin.H{
     "message": "Internal server error",
   })
-  return
-}
 
-func main() {
-  router := gin.Default()
-  router.GET("/coupons", getCoupons)
-  router.Run(":8080")
+  return
 }
