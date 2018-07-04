@@ -24,6 +24,7 @@ PHP container requests GO container copoun data to display it.
 
     cd go-symfony-docker/
     docker-compose build
+    docker-compose up -d
     docker exec -it php_app sh
     composer install
 
