@@ -24,11 +24,11 @@ class CouponController extends ApiController
         $query = [];
 
         if ($request->query->get('brand')) {
-          $query['brand'] = $request->query->get('brand');
+            $query['brand'] = $request->query->get('brand');
         }
 
         if ($request->query->get('value')) {
-          $query['value'] = $request->query->get('value');
+            $query['value'] = $request->query->get('value');
         }
 
         $limit = $request->query->get('limit')?:10;
