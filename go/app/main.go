@@ -9,6 +9,8 @@ import (
     "github.com/google/go-querystring/query"
 )
 
+const ApiKey = "adfhg@##$dfadas2312312789FSDADF342"
+
 type Query struct {
   Brand string `url:"brand" form:"brand"`
   Value int    `url:"value" form:"value" validate:"gte=0,lte=100"`
@@ -31,6 +33,7 @@ func getCoupons(c *gin.Context)  {
   }
 
   req, err := http.NewRequest("GET","http://nginx/get-coupons", nil)
+  req.Header.Set("x-api-key", ApiKey)
 
   if err != nil {
     displayError(c)
