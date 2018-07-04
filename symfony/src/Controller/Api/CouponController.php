@@ -34,9 +34,13 @@ class CouponController extends ApiController
         $limit = $request->query->get('limit')?:10;
 
         $coupons = $this->getDoctrine()->getRepository(Coupon::class)->findBy($query, null, $limit);
+        $entityManager = $this->getDoctrine()->getManager();
 
-        // foreach ($coupons as $coupon) {
-        // }
+         foreach ($coupons as $coupon) {
+             $entityManager->remove($coupon);
+         }
+
+        $entityManager->flush();
 
         return $this->createApiResponse($coupons);
     }
