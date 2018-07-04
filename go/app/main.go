@@ -28,22 +28,23 @@ func main() {
 func getCoupons(c *gin.Context)  {
   var queryStruct Query
 
-  prepareData(c, &queryStruct)
-  validateData(c, &queryStruct)
+  queryStruct.prepare(c)
+  queryStruct.validate(c)
+
   response := createRequest(c, &queryStruct)
 
   data, _ := ioutil.ReadAll(response.Body)
   c.Data(http.StatusOK, "application/json", data)
 }
 
-func prepareData(c *gin.Context, queryStruct *Query)  {
+func (queryStruct *Query) prepare(c *gin.Context)  {
   if err := c.ShouldBindWith(queryStruct, binding.Query); err != nil {
     c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
     return
   }
 }
 
-func validateData(c *gin.Context, queryStruct *Query)  {
+func (queryStruct *Query) validate(c *gin.Context)  {
   validate = validator.New()
   if err := validate.Struct(queryStruct); err != nil {
     c.JSON(http.StatusBadRequest, gin.H{"error": "Data provided is incomplete or wrong"})
